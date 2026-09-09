@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          icon: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description: string
+          icon: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           created_at: string
@@ -61,28 +88,40 @@ export type Database = {
       }
       profiles: {
         Row: {
+          best_streak: number
+          bot_wins: number
           created_at: string
+          current_streak: number
           id: string
           last_seen: string
           losses: number
+          puntos_totales: number
           status: string
           username: string
           wins: number
         }
         Insert: {
+          best_streak?: number
+          bot_wins?: number
           created_at?: string
+          current_streak?: number
           id: string
           last_seen?: string
           losses?: number
+          puntos_totales?: number
           status?: string
           username: string
           wins?: number
         }
         Update: {
+          best_streak?: number
+          bot_wins?: number
           created_at?: string
+          current_streak?: number
           id?: string
           last_seen?: string
           losses?: number
+          puntos_totales?: number
           status?: string
           username?: string
           wins?: number
@@ -127,12 +166,54 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          code: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      finish_match_rewards: {
+        Args: {
+          _loser: string
+          _match_id: string
+          _mode: number
+          _vs_bot: boolean
+          _winner: string
+        }
+        Returns: undefined
+      }
+      grant_achievement: {
+        Args: { _code: string; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       match_status:
