@@ -15,6 +15,15 @@ Juego online del clásico argentino, pensado primero para el celular. Creás tu 
 - **Puntos y ranking**: +5 por ganarle al bot, +10 contra una persona, +15 en mejor de 5, más bonus por racha. Tabla de posiciones con el usuario propio destacado.
 - **Rachas y logros**: contador de victorias seguidas y ocho insignias desbloqueables, visibles en el perfil.
 
+## Ejemplo rápido
+
+1. Te registrás con el usuario `charly_51`.
+2. En el menú tocás **Jugar ahora**.
+3. Elegís **Mejor de 3**.
+4. Seleccionás **Contra la app**.
+5. Jugás piedra, papel o tijera: la compu elige al instante y se muestra el resultado de la ronda.
+6. Si ganás la serie, sumás puntos, subís en el ranking y desbloqueás logros.
+
 ## Tecnologías
 
 - TanStack Start (React 19 + TypeScript) con enrutado por archivos
