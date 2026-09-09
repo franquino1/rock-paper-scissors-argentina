@@ -173,7 +173,7 @@ function AuthScreen() {
                 <Input
                   id="username"
                   required
-                  placeholder="ej: alexia_10"
+                  placeholder="ej: charly_51"
                   className="h-12"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
