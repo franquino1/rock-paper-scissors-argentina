@@ -69,12 +69,8 @@ function AuthScreen() {
       return;
     }
     setBusy(true);
-    const taken = await supabase
-      .from("profiles")
-      .select("id")
-      .ilike("username", clean)
-      .maybeSingle();
-    if (taken.data) {
+    const available = await supabase.rpc("username_available", { _username: clean });
+    if (available.data === false) {
       setBusy(false);
       toast.error("Ese nombre ya está tomado", { description: "Probá con otro." });
       return;
