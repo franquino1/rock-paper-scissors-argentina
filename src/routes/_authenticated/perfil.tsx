@@ -93,7 +93,7 @@ function PerfilScreen() {
           <p className="text-xs text-muted-foreground">Ganadas</p>
         </div>
         <div className="surface-card p-4 text-center">
-          <p className="text-2xl font-extrabold">{profile?.losses ?? 0}</p>
+          <p className="text-2xl font-extrabold">{privateStats?.losses ?? 0}</p>
           <p className="text-xs text-muted-foreground">Perdidas</p>
         </div>
       </section>
