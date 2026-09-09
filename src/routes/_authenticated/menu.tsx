@@ -30,7 +30,7 @@ function MenuScreen() {
   const [step, setStep] = useState<Step>("inicio");
   const [mode, setMode] = useState<number>(1);
   const [players, setPlayers] = useState<Profile[]>([]);
-  const [invites, setInvites] = useState<(Match & { rival?: Profile })[]>([]);
+  const [invites, setInvites] = useState<(Match & { rival: Profile | null })[]>([]);
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -63,7 +63,7 @@ function MenuScreen() {
         .in("id", ids);
       profilesById = Object.fromEntries(((profs ?? []) as Profile[]).map((p) => [p.id, p]));
     }
-    setInvites(list.map((m) => ({ ...m, rival: profilesById[m.player1] })));
+    setInvites(list.map((m) => ({ ...m, rival: profilesById[m.player1] ?? null })));
   }, [userId]);
 
   useEffect(() => {

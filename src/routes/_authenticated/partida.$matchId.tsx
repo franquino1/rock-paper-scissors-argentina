@@ -143,8 +143,12 @@ function MatchScreen() {
   const pick = async (choice: Choice) => {
     if (!match || !currentRound || myChoice || busy) return;
     setBusy(true);
-    const patch: Record<string, Choice> = { [`${mySide}_choice`]: choice };
-    if (match.vs_bot) patch["p2_choice"] = randomChoice();
+    const patch =
+      mySide === "p1"
+        ? match.vs_bot
+          ? { p1_choice: choice, p2_choice: randomChoice() }
+          : { p1_choice: choice }
+        : { p2_choice: choice };
     const { error } = await supabase
       .from("rounds")
       .update(patch)
@@ -161,11 +165,15 @@ function MatchScreen() {
   const leave = async () => {
     if (!match) return;
     setBusy(true);
-    const patch: Record<string, unknown> = { status: "cancelled" };
-    if (match.status === "in_progress" && !match.vs_bot) {
-      patch["winner_side"] = mySide === "p1" ? "p2" : "p1";
-    }
-    await supabase.from("matches").update(patch).eq("id", match.id);
+    const abandoned = match.status === "in_progress" && !match.vs_bot;
+    await supabase
+      .from("matches")
+      .update(
+        abandoned
+          ? { status: "cancelled" as const, winner_side: mySide === "p1" ? "p2" : "p1" }
+          : { status: "cancelled" as const },
+      )
+      .eq("id", match.id);
     setBusy(false);
     void navigate({ to: "/menu" });
   };

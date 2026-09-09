@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
+import { Route as AuthenticatedPartidaMatchIdRouteImport } from './routes/_authenticated/partida.$matchId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,27 +28,41 @@ const AuthenticatedMenuRoute = AuthenticatedMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPartidaMatchIdRoute =
+  AuthenticatedPartidaMatchIdRouteImport.update({
+    id: '/partida/$matchId',
+    path: '/partida/$matchId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/menu': typeof AuthenticatedMenuRoute
+  '/partida/$matchId': typeof AuthenticatedPartidaMatchIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/menu': typeof AuthenticatedMenuRoute
+  '/partida/$matchId': typeof AuthenticatedPartidaMatchIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
+  '/_authenticated/partida/$matchId': typeof AuthenticatedPartidaMatchIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/menu'
+  fullPaths: '/' | '/menu' | '/partida/$matchId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/menu'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/menu'
+  to: '/' | '/menu' | '/partida/$matchId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/menu'
+    | '/_authenticated/partida/$matchId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -78,15 +93,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMenuRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/partida/$matchId': {
+      id: '/_authenticated/partida/$matchId'
+      path: '/partida/$matchId'
+      fullPath: '/partida/$matchId'
+      preLoaderRoute: typeof AuthenticatedPartidaMatchIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
+  AuthenticatedPartidaMatchIdRoute: typeof AuthenticatedPartidaMatchIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
+  AuthenticatedPartidaMatchIdRoute: AuthenticatedPartidaMatchIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
