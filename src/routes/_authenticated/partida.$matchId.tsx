@@ -7,6 +7,7 @@ import {
   CHOICES,
   CHOICE_ICON,
   CHOICE_LABEL,
+  PROFILE_FIELDS,
   isOnline,
   modeLabel,
   randomChoice,
@@ -93,7 +94,7 @@ function MatchScreen() {
     }
     void supabase
       .from("profiles")
-      .select("id, username, status, last_seen, wins, losses")
+      .select(PROFILE_FIELDS)
       .eq("id", rivalId)
       .maybeSingle()
       .then(({ data }) => setRival((data as Profile | null) ?? null));
