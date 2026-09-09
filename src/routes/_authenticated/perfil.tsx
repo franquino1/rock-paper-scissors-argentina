@@ -27,6 +27,8 @@ function PerfilScreen() {
   const [catalog, setCatalog] = useState<Achievement[]>([]);
   const [unlocked, setUnlocked] = useState<Record<string, string>>({});
   const [rank, setRank] = useState<number | null>(null);
+  const [privateStats, setPrivateStats] = useState<PrivateStats | null>(null);
+
 
   const load = useCallback(async () => {
     if (!userId) return;
