@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayer } from "@/hooks/usePlayer";
-import { MODES, isOnline, modeLabel, type Match, type Profile } from "@/lib/game";
+import { MODES, PROFILE_FIELDS, isOnline, modeLabel, type Match, type Profile } from "@/lib/game";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -38,7 +38,7 @@ function MenuScreen() {
     if (!userId) return;
     const { data } = await supabase
       .from("profiles")
-      .select("id, username, status, last_seen, wins, losses")
+      .select(PROFILE_FIELDS)
       .neq("id", userId)
       .order("last_seen", { ascending: false })
       .limit(60);
@@ -59,7 +59,7 @@ function MenuScreen() {
     if (ids.length) {
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id, username, status, last_seen, wins, losses")
+        .select(PROFILE_FIELDS)
         .in("id", ids);
       profilesById = Object.fromEntries(((profs ?? []) as Profile[]).map((p) => [p.id, p]));
     }
@@ -208,7 +208,10 @@ function MenuScreen() {
           <p className="text-xs text-muted-foreground">Hola de nuevo</p>
           <h1 className="text-2xl font-extrabold">{profile?.username ?? "…"}</h1>
           <p className="text-xs text-muted-foreground">
-            {profile ? `${profile.wins} ganadas · ${profile.losses} perdidas` : ""}
+            {profile
+              ? `${profile.puntos_totales} pts · ${profile.wins} ganadas · ${profile.losses} perdidas` +
+                (profile.current_streak >= 3 ? ` · 🔥${profile.current_streak}` : "")
+              : ""}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={signOut}>
@@ -252,6 +255,24 @@ function MenuScreen() {
           <Button size="lg" className="h-14 w-full text-lg" onClick={() => setStep("modo")}>
             Jugar ahora
           </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="h-13"
+              onClick={() => navigate({ to: "/ranking" })}
+            >
+              🏆 Ranking
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="h-13"
+              onClick={() => navigate({ to: "/perfil" })}
+            >
+              🎖️ Mis logros
+            </Button>
+          </div>
           <div className="surface-card p-4 text-sm text-muted-foreground">
             <p className="font-semibold text-foreground">Cómo se gana</p>
             <p className="mt-1">🪨 rompe ✂️ · ✂️ corta 📄 · 📄 envuelve 🪨</p>

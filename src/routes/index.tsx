@@ -93,10 +93,11 @@ function AuthScreen() {
       return;
     }
     if (!data.session) {
-      toast.success("¡Listo! Revisá tu correo", {
-        description: "Te enviamos un link para confirmar la cuenta y empezar a jugar.",
-      });
-      return;
+      const retry = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (retry.error) {
+        toast.error("Cuenta creada, pero no pudimos entrar", { description: retry.error.message });
+        return;
+      }
     }
     void navigate({ to: "/menu", replace: true });
   };
@@ -204,6 +205,7 @@ function AuthScreen() {
                   type="password"
                   required
                   minLength={6}
+                  placeholder="Mínimo 6 caracteres"
                   autoComplete="new-password"
                   className="h-12"
                   value={password}
