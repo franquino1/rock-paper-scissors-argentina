@@ -7,15 +7,13 @@ import {
   CHOICES,
   CHOICE_ICON,
   CHOICE_LABEL,
-  PROFILE_FIELDS,
   isOnline,
   modeLabel,
-  randomChoice,
   targetScore,
   whyWins,
   type Choice,
   type Match,
-  type Profile,
+  type PlayerRow,
   type Round,
 } from "@/lib/game";
 import { Button } from "@/components/ui/button";
