@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
+import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedPartidaMatchIdRouteImport } from './routes/_authenticated/partida.$matchId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -28,6 +29,11 @@ const AuthenticatedMenuRoute = AuthenticatedMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPartidaMatchIdRoute =
   AuthenticatedPartidaMatchIdRouteImport.update({
     id: '/partida/$matchId',
@@ -38,11 +44,13 @@ const AuthenticatedPartidaMatchIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/menu': typeof AuthenticatedMenuRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/partida/$matchId': typeof AuthenticatedPartidaMatchIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/menu': typeof AuthenticatedMenuRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/partida/$matchId': typeof AuthenticatedPartidaMatchIdRoute
 }
 export interface FileRoutesById {
@@ -50,18 +58,20 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
+  '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/partida/$matchId': typeof AuthenticatedPartidaMatchIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/menu' | '/partida/$matchId'
+  fullPaths: '/' | '/menu' | '/ranking' | '/partida/$matchId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/menu' | '/partida/$matchId'
+  to: '/' | '/menu' | '/ranking' | '/partida/$matchId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/_authenticated/menu'
+    | '/_authenticated/ranking'
     | '/_authenticated/partida/$matchId'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +103,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMenuRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ranking': {
+      id: '/_authenticated/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof AuthenticatedRankingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/partida/$matchId': {
       id: '/_authenticated/partida/$matchId'
       path: '/partida/$matchId'
@@ -105,11 +122,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
+  AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedPartidaMatchIdRoute: typeof AuthenticatedPartidaMatchIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
+  AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedPartidaMatchIdRoute: AuthenticatedPartidaMatchIdRoute,
 }
 
