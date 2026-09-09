@@ -15,11 +15,9 @@ export interface Profile {
   status: string;
   last_seen: string;
   wins: number;
-  losses: number;
   puntos_totales: number;
   current_streak: number;
   best_streak: number;
-  bot_wins: number;
 }
 
 export interface Achievement {
