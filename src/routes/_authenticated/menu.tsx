@@ -208,7 +208,10 @@ function MenuScreen() {
           <p className="text-xs text-muted-foreground">Hola de nuevo</p>
           <h1 className="text-2xl font-extrabold">{profile?.username ?? "…"}</h1>
           <p className="text-xs text-muted-foreground">
-            {profile ? `${profile.wins} ganadas · ${profile.losses} perdidas` : ""}
+            {profile
+              ? `${profile.puntos_totales} pts · ${profile.wins} ganadas · ${profile.losses} perdidas` +
+                (profile.current_streak >= 3 ? ` · 🔥${profile.current_streak}` : "")
+              : ""}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={signOut}>
@@ -252,6 +255,24 @@ function MenuScreen() {
           <Button size="lg" className="h-14 w-full text-lg" onClick={() => setStep("modo")}>
             Jugar ahora
           </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="h-13"
+              onClick={() => navigate({ to: "/ranking" })}
+            >
+              🏆 Ranking
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="h-13"
+              onClick={() => navigate({ to: "/perfil" })}
+            >
+              🎖️ Mis logros
+            </Button>
+          </div>
           <div className="surface-card p-4 text-sm text-muted-foreground">
             <p className="font-semibold text-foreground">Cómo se gana</p>
             <p className="mt-1">🪨 rompe ✂️ · ✂️ corta 📄 · 📄 envuelve 🪨</p>
