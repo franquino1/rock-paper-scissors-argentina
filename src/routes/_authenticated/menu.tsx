@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayer } from "@/hooks/usePlayer";
-import { MODES, PROFILE_FIELDS, isOnline, modeLabel, type Match, type Profile } from "@/lib/game";
+import { MODES, isOnline, modeLabel, type Match, type PlayerRow } from "@/lib/game";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -29,20 +29,15 @@ function MenuScreen() {
   const { userId, profile, beat } = usePlayer();
   const [step, setStep] = useState<Step>("inicio");
   const [mode, setMode] = useState<number>(1);
-  const [players, setPlayers] = useState<Profile[]>([]);
-  const [invites, setInvites] = useState<(Match & { rival: Profile | null })[]>([]);
+  const [players, setPlayers] = useState<PlayerRow[]>([]);
+  const [invites, setInvites] = useState<(Match & { rival: PlayerRow | null })[]>([]);
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
 
   const loadPlayers = useCallback(async () => {
     if (!userId) return;
-    const { data } = await supabase
-      .from("profiles")
-      .select(PROFILE_FIELDS)
-      .neq("id", userId)
-      .order("last_seen", { ascending: false })
-      .limit(60);
-    setPlayers((data ?? []) as Profile[]);
+    const { data } = await supabase.rpc("list_players", { _limit: 60 });
+    setPlayers((data ?? []) as PlayerRow[]);
   }, [userId]);
 
   const loadInvites = useCallback(async () => {
@@ -55,13 +50,10 @@ function MenuScreen() {
       .order("created_at", { ascending: false });
     const list = (data ?? []) as Match[];
     const ids = list.map((m) => m.player1);
-    let profilesById: Record<string, Profile> = {};
+    let profilesById: Record<string, PlayerRow> = {};
     if (ids.length) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select(PROFILE_FIELDS)
-        .in("id", ids);
-      profilesById = Object.fromEntries(((profs ?? []) as Profile[]).map((p) => [p.id, p]));
+      const { data: profs } = await supabase.rpc("players_by_ids", { _ids: ids });
+      profilesById = Object.fromEntries(((profs ?? []) as PlayerRow[]).map((p) => [p.id, p]));
     }
     setInvites(list.map((m) => ({ ...m, rival: profilesById[m.player1] ?? null })));
   }, [userId]);
@@ -76,9 +68,6 @@ function MenuScreen() {
     if (!userId) return;
     const channel = supabase
       .channel("menu-updates")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        void loadPlayers();
-      })
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "matches", filter: `player2=eq.${userId}` },
@@ -87,7 +76,9 @@ function MenuScreen() {
         },
       )
       .subscribe();
+    const id = window.setInterval(() => void loadPlayers(), 20_000);
     return () => {
+      window.clearInterval(id);
       void supabase.removeChannel(channel);
     };
   }, [userId, loadPlayers, loadInvites]);
@@ -101,11 +92,10 @@ function MenuScreen() {
 
   const acceptInvite = async (match: Match) => {
     setBusy(true);
-    const { error } = await supabase
-      .from("matches")
-      .update({ status: "in_progress" })
-      .eq("id", match.id)
-      .eq("status", "invited");
+    const { error } = await supabase.rpc("respond_invite", {
+      _match_id: match.id,
+      _accept: true,
+    });
     setBusy(false);
     if (error) {
       toast.error("No pudimos aceptar la invitación");
@@ -115,84 +105,48 @@ function MenuScreen() {
   };
 
   const declineInvite = async (match: Match) => {
-    await supabase.from("matches").update({ status: "declined" }).eq("id", match.id);
+    await supabase.rpc("respond_invite", { _match_id: match.id, _accept: false });
     void loadInvites();
   };
 
-  const invitePlayer = async (rival: Profile) => {
+  const invitePlayer = async (rival: PlayerRow) => {
     if (!userId) return;
     setBusy(true);
-    const { data, error } = await supabase
-      .from("matches")
-      .insert({ player1: userId, player2: rival.id, mode, status: "invited" })
-      .select("id")
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("create_invite", {
+      _rival: rival.id,
+      _mode: mode,
+    });
     setBusy(false);
     if (error || !data) {
       toast.error("No pudimos enviar la invitación");
       return;
     }
     toast.success(`Invitación enviada a ${rival.username}`);
-    void navigate({ to: "/partida/$matchId", params: { matchId: data.id } });
+    void navigate({ to: "/partida/$matchId", params: { matchId: data } });
   };
 
   const playRandom = async () => {
     if (!userId) return;
     setBusy(true);
-    const { data: open } = await supabase
-      .from("matches")
-      .select("*")
-      .eq("status", "waiting")
-      .eq("is_random", true)
-      .eq("mode", mode)
-      .is("player2", null)
-      .neq("player1", userId)
-      .order("created_at", { ascending: true })
-      .limit(5);
-
-    for (const candidate of (open ?? []) as Match[]) {
-      const { data: joined } = await supabase
-        .from("matches")
-        .update({ player2: userId, status: "in_progress" })
-        .eq("id", candidate.id)
-        .eq("status", "waiting")
-        .is("player2", null)
-        .select("id")
-        .maybeSingle();
-      if (joined) {
-        setBusy(false);
-        void navigate({ to: "/partida/$matchId", params: { matchId: joined.id } });
-        return;
-      }
-    }
-
-    const { data, error } = await supabase
-      .from("matches")
-      .insert({ player1: userId, mode, is_random: true, status: "waiting" })
-      .select("id")
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("join_random_match", { _mode: mode });
     setBusy(false);
     if (error || !data) {
       toast.error("No pudimos abrir la sala de espera");
       return;
     }
-    void navigate({ to: "/partida/$matchId", params: { matchId: data.id } });
+    void navigate({ to: "/partida/$matchId", params: { matchId: data } });
   };
 
   const playBot = async () => {
     if (!userId) return;
     setBusy(true);
-    const { data, error } = await supabase
-      .from("matches")
-      .insert({ player1: userId, mode, vs_bot: true, status: "in_progress" })
-      .select("id")
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("create_bot_match", { _mode: mode });
     setBusy(false);
     if (error || !data) {
       toast.error("No pudimos empezar la partida");
       return;
     }
-    void navigate({ to: "/partida/$matchId", params: { matchId: data.id } });
+    void navigate({ to: "/partida/$matchId", params: { matchId: data } });
   };
 
   const signOut = async () => {

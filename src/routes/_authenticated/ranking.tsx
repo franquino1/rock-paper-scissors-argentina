@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayer } from "@/hooks/usePlayer";
-import { PROFILE_FIELDS, type Profile } from "@/lib/game";
+import { type LeaderRow } from "@/lib/game";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/ranking")({
@@ -23,25 +23,19 @@ export const Route = createFileRoute("/_authenticated/ranking")({
 function RankingScreen() {
   const navigate = useNavigate();
   const { userId } = usePlayer();
-  const [rows, setRows] = useState<Profile[]>([]);
+  const [rows, setRows] = useState<LeaderRow[]>([]);
   const [myRank, setMyRank] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const { data } = await supabase
-      .from("profiles")
-      .select(PROFILE_FIELDS)
-      .order("puntos_totales", { ascending: false })
-      .order("wins", { ascending: false })
-      .limit(100);
-    const list = (data ?? []) as Profile[];
-    setRows(list);
-    if (userId) {
-      const idx = list.findIndex((p) => p.id === userId);
-      setMyRank(idx >= 0 ? idx + 1 : null);
-    }
+    const [board, rank] = await Promise.all([
+      supabase.rpc("leaderboard", { _limit: 100 }),
+      supabase.rpc("my_rank"),
+    ]);
+    setRows((board.data ?? []) as LeaderRow[]);
+    setMyRank(typeof rank.data === "number" ? rank.data : null);
     setLoading(false);
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     void load();

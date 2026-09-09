@@ -200,6 +200,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_bot_match: { Args: { _mode: number }; Returns: string }
+      create_invite: {
+        Args: { _mode: number; _rival: string }
+        Returns: string
+      }
       finish_match_rewards: {
         Args: {
           _loser: string
@@ -214,6 +219,49 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: undefined
       }
+      join_random_match: { Args: { _mode: number }; Returns: string }
+      leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          current_streak: number
+          id: string
+          puntos_totales: number
+          username: string
+          wins: number
+        }[]
+      }
+      leave_match: { Args: { _match_id: string }; Returns: undefined }
+      list_players: {
+        Args: { _limit?: number }
+        Returns: {
+          id: string
+          last_seen: string
+          status: string
+          username: string
+        }[]
+      }
+      my_rank: { Args: never; Returns: number }
+      play_round_choice: {
+        Args: {
+          _choice: Database["public"]["Enums"]["play_choice"]
+          _match_id: string
+        }
+        Returns: undefined
+      }
+      players_by_ids: {
+        Args: { _ids: string[] }
+        Returns: {
+          id: string
+          last_seen: string
+          status: string
+          username: string
+        }[]
+      }
+      respond_invite: {
+        Args: { _accept: boolean; _match_id: string }
+        Returns: undefined
+      }
+      username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
       match_status:

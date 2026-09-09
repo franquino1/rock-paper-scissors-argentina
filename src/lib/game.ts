@@ -31,6 +31,23 @@ export interface Achievement {
 export const PROFILE_FIELDS =
   "id, username, status, last_seen, wins, puntos_totales, current_streak, best_streak";
 
+/** Datos públicos de otro jugador (sin estadísticas privadas). */
+export interface PlayerRow {
+  id: string;
+  username: string;
+  status: string;
+  last_seen: string;
+}
+
+/** Fila de la tabla de posiciones. */
+export interface LeaderRow {
+  id: string;
+  username: string;
+  puntos_totales: number;
+  wins: number;
+  current_streak: number;
+}
+
 
 export interface Match {
   id: string;
