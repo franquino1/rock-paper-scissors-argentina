@@ -197,7 +197,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          best_streak: number | null
+          current_streak: number | null
+          id: string | null
+          last_seen: string | null
+          puntos_totales: number | null
+          status: string | null
+          username: string | null
+          wins: number | null
+        }
+        Insert: {
+          best_streak?: number | null
+          current_streak?: number | null
+          id?: string | null
+          last_seen?: string | null
+          puntos_totales?: number | null
+          status?: string | null
+          username?: string | null
+          wins?: number | null
+        }
+        Update: {
+          best_streak?: number | null
+          current_streak?: number | null
+          id?: string | null
+          last_seen?: string | null
+          puntos_totales?: number | null
+          status?: string | null
+          username?: string | null
+          wins?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       finish_match_rewards: {
