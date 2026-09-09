@@ -14,16 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      matches: {
+        Row: {
+          created_at: string
+          id: string
+          is_random: boolean
+          mode: number
+          p1_score: number
+          p2_score: number
+          player1: string
+          player2: string | null
+          status: Database["public"]["Enums"]["match_status"]
+          updated_at: string
+          vs_bot: boolean
+          winner_side: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_random?: boolean
+          mode?: number
+          p1_score?: number
+          p2_score?: number
+          player1: string
+          player2?: string | null
+          status?: Database["public"]["Enums"]["match_status"]
+          updated_at?: string
+          vs_bot?: boolean
+          winner_side?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_random?: boolean
+          mode?: number
+          p1_score?: number
+          p2_score?: number
+          player1?: string
+          player2?: string | null
+          status?: Database["public"]["Enums"]["match_status"]
+          updated_at?: string
+          vs_bot?: boolean
+          winner_side?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          last_seen: string
+          losses: number
+          status: string
+          username: string
+          wins: number
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          last_seen?: string
+          losses?: number
+          status?: string
+          username: string
+          wins?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_seen?: string
+          losses?: number
+          status?: string
+          username?: string
+          wins?: number
+        }
+        Relationships: []
+      }
+      rounds: {
+        Row: {
+          created_at: string
+          id: string
+          match_id: string
+          p1_choice: Database["public"]["Enums"]["play_choice"] | null
+          p2_choice: Database["public"]["Enums"]["play_choice"] | null
+          result: string | null
+          round_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_id: string
+          p1_choice?: Database["public"]["Enums"]["play_choice"] | null
+          p2_choice?: Database["public"]["Enums"]["play_choice"] | null
+          result?: string | null
+          round_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_id?: string
+          p1_choice?: Database["public"]["Enums"]["play_choice"] | null
+          p2_choice?: Database["public"]["Enums"]["play_choice"] | null
+          result?: string | null
+          round_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rounds_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_match_participant: { Args: { _match_id: string }; Returns: boolean }
+      username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      match_status:
+        | "invited"
+        | "waiting"
+        | "in_progress"
+        | "finished"
+        | "cancelled"
+        | "declined"
+      play_choice: "piedra" | "papel" | "tijera"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +270,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      match_status: [
+        "invited",
+        "waiting",
+        "in_progress",
+        "finished",
+        "cancelled",
+        "declined",
+      ],
+      play_choice: ["piedra", "papel", "tijera"],
+    },
   },
 } as const
