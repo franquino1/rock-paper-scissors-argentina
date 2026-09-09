@@ -132,8 +132,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_match_participant: { Args: { _match_id: string }; Returns: boolean }
-      username_available: { Args: { _username: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       match_status:
