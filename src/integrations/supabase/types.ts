@@ -214,19 +214,6 @@ export type Database = {
         Args: { _code: string; _user_id: string }
         Returns: undefined
       }
-      list_public_profiles: {
-        Args: never
-        Returns: {
-          best_streak: number
-          current_streak: number
-          id: string
-          last_seen: string
-          puntos_totales: number
-          status: string
-          username: string
-          wins: number
-        }[]
-      }
     }
     Enums: {
       match_status:
