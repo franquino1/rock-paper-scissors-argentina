@@ -27,9 +27,17 @@ async function ensureProfile(session: Session): Promise<Profile | null> {
       .select("id, username, status, last_seen, wins, losses")
       .maybeSingle();
     if (inserted.data) return inserted.data as Profile;
-    if (inserted.error && inserted.error.code !== "23505") return null;
+    if (inserted.error?.code !== "23505") return null;
+    // Puede haber sido creado en paralelo, o el nombre ya estar tomado.
+    const again = await supabase
+      .from("profiles")
+      .select("id, username, status, last_seen, wins, losses")
+      .eq("id", userId)
+      .maybeSingle();
+    if (again.data) return again.data as Profile;
   }
   return null;
+
 }
 
 /** Sesión + perfil del jugador, con "latido" de presencia cada 30 s. */
