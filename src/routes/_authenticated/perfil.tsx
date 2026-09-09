@@ -49,8 +49,7 @@ function PerfilScreen() {
         ]),
       ),
     );
-    const idx = ((ranking.data ?? []) as { id: string }[]).findIndex((r) => r.id === userId);
-    setRank(idx >= 0 ? idx + 1 : null);
+    setRank(typeof ranking.data === "number" ? ranking.data : null);
     try {
       setPrivateStats(await getMyPrivateStats());
     } catch {
