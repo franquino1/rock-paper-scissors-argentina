@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import type { Profile } from "@/lib/game";
+import { PROFILE_FIELDS, type Profile } from "@/lib/game";
 
 async function ensureProfile(session: Session): Promise<Profile | null> {
   const userId = session.user.id;
   const existing = await supabase
     .from("profiles")
-    .select("id, username, status, last_seen, wins, losses")
+    .select(PROFILE_FIELDS)
     .eq("id", userId)
     .maybeSingle();
 
@@ -24,14 +24,14 @@ async function ensureProfile(session: Session): Promise<Profile | null> {
     const inserted = await supabase
       .from("profiles")
       .insert({ id: userId, username: candidate, status: "online" })
-      .select("id, username, status, last_seen, wins, losses")
+      .select(PROFILE_FIELDS)
       .maybeSingle();
     if (inserted.data) return inserted.data as Profile;
     if (inserted.error?.code !== "23505") return null;
     // Puede haber sido creado en paralelo, o el nombre ya estar tomado.
     const again = await supabase
       .from("profiles")
-      .select("id, username, status, last_seen, wins, losses")
+      .select(PROFILE_FIELDS)
       .eq("id", userId)
       .maybeSingle();
     if (again.data) return again.data as Profile;
@@ -98,7 +98,7 @@ export function usePlayer() {
     if (!userId) return;
     const { data } = await supabase
       .from("profiles")
-      .select("id, username, status, last_seen, wins, losses")
+      .select(PROFILE_FIELDS)
       .eq("id", userId)
       .maybeSingle();
     if (data) setProfile(data as Profile);

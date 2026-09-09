@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayer } from "@/hooks/usePlayer";
-import { MODES, isOnline, modeLabel, type Match, type Profile } from "@/lib/game";
+import { MODES, PROFILE_FIELDS, isOnline, modeLabel, type Match, type Profile } from "@/lib/game";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -38,7 +38,7 @@ function MenuScreen() {
     if (!userId) return;
     const { data } = await supabase
       .from("profiles")
-      .select("id, username, status, last_seen, wins, losses")
+      .select(PROFILE_FIELDS)
       .neq("id", userId)
       .order("last_seen", { ascending: false })
       .limit(60);
@@ -59,7 +59,7 @@ function MenuScreen() {
     if (ids.length) {
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id, username, status, last_seen, wins, losses")
+        .select(PROFILE_FIELDS)
         .in("id", ids);
       profilesById = Object.fromEntries(((profs ?? []) as Profile[]).map((p) => [p.id, p]));
     }
