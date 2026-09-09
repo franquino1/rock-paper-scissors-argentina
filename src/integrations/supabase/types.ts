@@ -197,39 +197,7 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          best_streak: number | null
-          current_streak: number | null
-          id: string | null
-          last_seen: string | null
-          puntos_totales: number | null
-          status: string | null
-          username: string | null
-          wins: number | null
-        }
-        Insert: {
-          best_streak?: number | null
-          current_streak?: number | null
-          id?: string | null
-          last_seen?: string | null
-          puntos_totales?: number | null
-          status?: string | null
-          username?: string | null
-          wins?: number | null
-        }
-        Update: {
-          best_streak?: number | null
-          current_streak?: number | null
-          id?: string | null
-          last_seen?: string | null
-          puntos_totales?: number | null
-          status?: string | null
-          username?: string | null
-          wins?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       finish_match_rewards: {
@@ -245,6 +213,19 @@ export type Database = {
       grant_achievement: {
         Args: { _code: string; _user_id: string }
         Returns: undefined
+      }
+      list_public_profiles: {
+        Args: never
+        Returns: {
+          best_streak: number
+          current_streak: number
+          id: string
+          last_seen: string
+          puntos_totales: number
+          status: string
+          username: string
+          wins: number
+        }[]
       }
     }
     Enums: {
