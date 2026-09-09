@@ -133,17 +133,10 @@ function MatchScreen() {
   const pick = async (choice: Choice) => {
     if (!match || !currentRound || myChoice || busy) return;
     setBusy(true);
-    const patch =
-      mySide === "p1"
-        ? match.vs_bot
-          ? { p1_choice: choice, p2_choice: randomChoice() }
-          : { p1_choice: choice }
-        : { p2_choice: choice };
-    const { error } = await supabase
-      .from("rounds")
-      .update(patch)
-      .eq("id", currentRound.id)
-      .is(`${mySide}_choice`, null);
+    const { error } = await supabase.rpc("play_round_choice", {
+      _match_id: match.id,
+      _choice: choice,
+    });
     setBusy(false);
     if (error) {
       toast.error("No pudimos enviar tu jugada");
@@ -155,15 +148,7 @@ function MatchScreen() {
   const leave = async () => {
     if (!match) return;
     setBusy(true);
-    const abandoned = match.status === "in_progress" && !match.vs_bot;
-    await supabase
-      .from("matches")
-      .update(
-        abandoned
-          ? { status: "cancelled" as const, winner_side: mySide === "p1" ? "p2" : "p1" }
-          : { status: "cancelled" as const },
-      )
-      .eq("id", match.id);
+    await supabase.rpc("leave_match", { _match_id: match.id });
     setBusy(false);
     void navigate({ to: "/menu" });
   };
@@ -172,26 +157,21 @@ function MatchScreen() {
     if (!match || !userId) return;
     setBusy(true);
     if (match.vs_bot) {
-      const { data } = await supabase
-        .from("matches")
-        .insert({ player1: userId, mode: match.mode, vs_bot: true, status: "in_progress" })
-        .select("id")
-        .maybeSingle();
+      const { data } = await supabase.rpc("create_bot_match", { _mode: match.mode });
       setBusy(false);
       if (data) {
-        void navigate({ to: "/partida/$matchId", params: { matchId: data.id } });
+        void navigate({ to: "/partida/$matchId", params: { matchId: data } });
         return;
       }
     } else if (rivalId) {
-      const { data } = await supabase
-        .from("matches")
-        .insert({ player1: userId, player2: rivalId, mode: match.mode, status: "invited" })
-        .select("id")
-        .maybeSingle();
+      const { data } = await supabase.rpc("create_invite", {
+        _rival: rivalId,
+        _mode: match.mode,
+      });
       setBusy(false);
       if (data) {
         toast.success(`Revancha enviada a ${rivalName}`);
-        void navigate({ to: "/partida/$matchId", params: { matchId: data.id } });
+        void navigate({ to: "/partida/$matchId", params: { matchId: data } });
         return;
       }
     }
