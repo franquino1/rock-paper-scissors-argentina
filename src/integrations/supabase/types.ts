@@ -261,6 +261,7 @@ export type Database = {
         Args: { _accept: boolean; _match_id: string }
         Returns: undefined
       }
+      username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
       match_status:
