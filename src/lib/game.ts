@@ -16,7 +16,23 @@ export interface Profile {
   last_seen: string;
   wins: number;
   losses: number;
+  puntos_totales: number;
+  current_streak: number;
+  best_streak: number;
+  bot_wins: number;
 }
+
+export interface Achievement {
+  code: string;
+  title: string;
+  description: string;
+  icon: string;
+  sort_order: number;
+}
+
+export const PROFILE_FIELDS =
+  "id, username, status, last_seen, wins, losses, puntos_totales, current_streak, best_streak, bot_wins";
+
 
 export interface Match {
   id: string;
