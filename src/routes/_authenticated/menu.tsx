@@ -140,17 +140,13 @@ function MenuScreen() {
   const playBot = async () => {
     if (!userId) return;
     setBusy(true);
-    const { data, error } = await supabase
-      .from("matches")
-      .insert({ player1: userId, mode, vs_bot: true, status: "in_progress" })
-      .select("id")
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("create_bot_match", { _mode: mode });
     setBusy(false);
     if (error || !data) {
       toast.error("No pudimos empezar la partida");
       return;
     }
-    void navigate({ to: "/partida/$matchId", params: { matchId: data.id } });
+    void navigate({ to: "/partida/$matchId", params: { matchId: data } });
   };
 
   const signOut = async () => {
