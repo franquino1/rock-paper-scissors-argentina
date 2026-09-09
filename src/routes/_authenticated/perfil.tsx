@@ -38,12 +38,7 @@ function PerfilScreen() {
         .select("code, title, description, icon, sort_order")
         .order("sort_order"),
       supabase.from("user_achievements").select("code, unlocked_at").eq("user_id", userId),
-      supabase
-        .from("profiles")
-        .select("id")
-        .order("puntos_totales", { ascending: false })
-        .order("wins", { ascending: false })
-        .limit(200),
+      supabase.rpc("my_rank"),
     ]);
     setCatalog((all.data ?? []) as Achievement[]);
     setUnlocked(
