@@ -40,7 +40,7 @@ function MatchScreen() {
 
   const [match, setMatch] = useState<Match | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
-  const [rival, setRival] = useState<Profile | null>(null);
+  const [rival, setRival] = useState<PlayerRow | null>(null);
   const [busy, setBusy] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
@@ -85,32 +85,23 @@ function MatchScreen() {
   const mySide: "p1" | "p2" = match && match.player2 === userId ? "p2" : "p1";
   const rivalId = match ? (mySide === "p1" ? match.player2 : match.player1) : null;
 
+  // Datos y presencia del rival (consulta acotada, sin exponer estadísticas)
   useEffect(() => {
     if (!rivalId) {
       setRival(null);
       return;
     }
-    void supabase
-      .from("profiles")
-      .select(PROFILE_FIELDS)
-      .eq("id", rivalId)
-      .maybeSingle()
-      .then(({ data }) => setRival((data as Profile | null) ?? null));
-  }, [rivalId]);
-
-  // Presencia del rival en vivo
-  useEffect(() => {
-    if (!rivalId) return;
-    const channel = supabase
-      .channel(`rival-${rivalId}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${rivalId}` },
-        (payload) => setRival(payload.new as Profile),
-      )
-      .subscribe();
+    let active = true;
+    const loadRival = async () => {
+      const { data } = await supabase.rpc("players_by_ids", { _ids: [rivalId] });
+      if (!active) return;
+      setRival((((data ?? []) as PlayerRow[])[0] ?? null) as PlayerRow | null);
+    };
+    void loadRival();
+    const id = window.setInterval(() => void loadRival(), 15_000);
     return () => {
-      void supabase.removeChannel(channel);
+      active = false;
+      window.clearInterval(id);
     };
   }, [rivalId]);
 
