@@ -209,7 +209,7 @@ function MenuScreen() {
           <h1 className="text-2xl font-extrabold">{profile?.username ?? "…"}</h1>
           <p className="text-xs text-muted-foreground">
             {profile
-              ? `${profile.puntos_totales} pts · ${profile.wins} ganadas · ${profile.losses} perdidas` +
+              ? `${profile.puntos_totales} pts · ${profile.wins} ganadas` +
                 (profile.current_streak >= 3 ? ` · 🔥${profile.current_streak}` : "")
               : ""}
           </p>

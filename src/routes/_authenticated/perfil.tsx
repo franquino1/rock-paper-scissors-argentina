@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayer } from "@/hooks/usePlayer";
 import type { Achievement } from "@/lib/game";
+import { getMyPrivateStats, type PrivateStats } from "@/lib/stats.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -26,6 +27,8 @@ function PerfilScreen() {
   const [catalog, setCatalog] = useState<Achievement[]>([]);
   const [unlocked, setUnlocked] = useState<Record<string, string>>({});
   const [rank, setRank] = useState<number | null>(null);
+  const [privateStats, setPrivateStats] = useState<PrivateStats | null>(null);
+
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -53,6 +56,11 @@ function PerfilScreen() {
     );
     const idx = ((ranking.data ?? []) as { id: string }[]).findIndex((r) => r.id === userId);
     setRank(idx >= 0 ? idx + 1 : null);
+    try {
+      setPrivateStats(await getMyPrivateStats());
+    } catch {
+      setPrivateStats(null);
+    }
   }, [userId]);
 
   useEffect(() => {
@@ -93,7 +101,7 @@ function PerfilScreen() {
           <p className="text-xs text-muted-foreground">Ganadas</p>
         </div>
         <div className="surface-card p-4 text-center">
-          <p className="text-2xl font-extrabold">{profile?.losses ?? 0}</p>
+          <p className="text-2xl font-extrabold">{privateStats?.losses ?? 0}</p>
           <p className="text-xs text-muted-foreground">Perdidas</p>
         </div>
       </section>
