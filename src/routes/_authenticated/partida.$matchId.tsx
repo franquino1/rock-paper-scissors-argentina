@@ -182,6 +182,31 @@ function MatchScreen() {
     void navigate({ to: "/menu" });
   };
 
+  const addFriend = async () => {
+    if (!rivalId) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("send_friend_request", { _friend: rivalId });
+    setBusy(false);
+    if (error) {
+      toast.error("No pudimos enviar la solicitud");
+      return;
+    }
+    setFriendSent(true);
+    toast.success(`Le mandamos la solicitud a ${rivalName}`);
+  };
+
+  const friendButton = !match?.vs_bot && rivalId && (
+    <Button
+      size="lg"
+      variant="secondary"
+      className="h-13 w-full text-base"
+      disabled={busy || friendSent}
+      onClick={addFriend}
+    >
+      {friendSent ? "Solicitud enviada ✅" : `👥 Agregar a ${rivalName} como amigo`}
+    </Button>
+  );
+
   if (notFound) {
     return (
       <Centered>
