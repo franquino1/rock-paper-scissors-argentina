@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as AuthenticatedAmigosRouteImport } from './routes/_authenticated/amigos'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
@@ -24,6 +27,21 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAmigosRoute = AuthenticatedAmigosRouteImport.update({
+  id: '/amigos',
+  path: '/amigos',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMenuRoute = AuthenticatedMenuRouteImport.update({
   id: '/menu',
@@ -49,6 +67,9 @@ const AuthenticatedPartidaMatchIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/terminos': typeof TerminosRoute
+  '/amigos': typeof AuthenticatedAmigosRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/ranking': typeof AuthenticatedRankingRoute
@@ -56,6 +77,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/terminos': typeof TerminosRoute
+  '/amigos': typeof AuthenticatedAmigosRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/ranking': typeof AuthenticatedRankingRoute
@@ -65,6 +89,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/privacidad': typeof PrivacidadRoute
+  '/terminos': typeof TerminosRoute
+  '/_authenticated/amigos': typeof AuthenticatedAmigosRoute
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
@@ -72,13 +99,32 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/menu' | '/perfil' | '/ranking' | '/partida/$matchId'
+  fullPaths:
+    | '/'
+    | '/privacidad'
+    | '/terminos'
+    | '/amigos'
+    | '/menu'
+    | '/perfil'
+    | '/ranking'
+    | '/partida/$matchId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/menu' | '/perfil' | '/ranking' | '/partida/$matchId'
+  to:
+    | '/'
+    | '/privacidad'
+    | '/terminos'
+    | '/amigos'
+    | '/menu'
+    | '/perfil'
+    | '/ranking'
+    | '/partida/$matchId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/privacidad'
+    | '/terminos'
+    | '/_authenticated/amigos'
     | '/_authenticated/menu'
     | '/_authenticated/perfil'
     | '/_authenticated/ranking'
@@ -88,6 +134,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  PrivacidadRoute: typeof PrivacidadRoute
+  TerminosRoute: typeof TerminosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -105,6 +153,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/amigos': {
+      id: '/_authenticated/amigos'
+      path: '/amigos'
+      fullPath: '/amigos'
+      preLoaderRoute: typeof AuthenticatedAmigosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/menu': {
       id: '/_authenticated/menu'
@@ -138,6 +207,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAmigosRoute: typeof AuthenticatedAmigosRoute
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
@@ -145,6 +215,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAmigosRoute: AuthenticatedAmigosRoute,
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
@@ -157,6 +228,8 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  PrivacidadRoute: PrivacidadRoute,
+  TerminosRoute: TerminosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
