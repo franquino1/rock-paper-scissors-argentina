@@ -64,6 +64,24 @@ export interface Match {
   updated_at: string;
 }
 
+/** Ronda en curso: solo incluye tu propia jugada. */
+export interface CurrentRound {
+  id: string;
+  round_number: number;
+  my_choice: Choice | null;
+  rival_played: boolean;
+}
+
+/** Amigo o solicitud de amistad. */
+export interface FriendRow {
+  id: string;
+  username: string;
+  status: string;
+  last_seen: string;
+  relation: string;
+  direction: string;
+}
+
 export interface Round {
   id: string;
   match_id: string;

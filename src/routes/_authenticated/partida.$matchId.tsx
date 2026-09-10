@@ -12,6 +12,7 @@ import {
   targetScore,
   whyWins,
   type Choice,
+  type CurrentRound,
   type Match,
   type PlayerRow,
   type Round,
@@ -40,9 +41,11 @@ function MatchScreen() {
 
   const [match, setMatch] = useState<Match | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
+  const [currentRound, setCurrentRound] = useState<CurrentRound | null>(null);
   const [rival, setRival] = useState<PlayerRow | null>(null);
   const [busy, setBusy] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [friendSent, setFriendSent] = useState(false);
 
   const load = useCallback(async () => {
     const { data: m } = await supabase.from("matches").select("*").eq("id", matchId).maybeSingle();
@@ -51,12 +54,16 @@ function MatchScreen() {
       return;
     }
     setMatch(m as Match);
+    // Solo devuelve rondas ya resueltas: la jugada del rival nunca llega antes de tiempo.
     const { data: rs } = await supabase
       .from("rounds")
       .select("*")
       .eq("match_id", matchId)
       .order("round_number", { ascending: true });
     setRounds((rs ?? []) as Round[]);
+    // La ronda en curso llega enmascarada: solo mi jugada y si el rival ya jugó.
+    const { data: cr } = await supabase.rpc("current_round", { _match_id: matchId });
+    setCurrentRound((((cr ?? []) as CurrentRound[])[0] ?? null) as CurrentRound | null);
   }, [matchId]);
 
   useEffect(() => {
@@ -71,13 +78,17 @@ function MatchScreen() {
         { event: "*", schema: "public", table: "matches", filter: `id=eq.${matchId}` },
         () => void load(),
       )
+      // Realtime solo entrega rondas con resultado calculado (lo garantiza la seguridad
+      // de la base): la jugada del rival nunca viaja antes del reveal.
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "rounds", filter: `match_id=eq.${matchId}` },
         () => void load(),
       )
       .subscribe();
+    const id = window.setInterval(() => void load(), 5_000);
     return () => {
+      window.clearInterval(id);
       void supabase.removeChannel(channel);
     };
   }, [matchId, load]);
@@ -110,20 +121,12 @@ function MatchScreen() {
     void beat(match.status === "in_progress" ? "in_match" : "online");
   }, [match?.status, match, beat]);
 
-  const currentRound = useMemo(
-    () => rounds.find((r) => r.result === null) ?? null,
-    [rounds],
-  );
   const lastResolved = useMemo(
     () => [...rounds].filter((r) => r.result !== null).pop() ?? null,
     [rounds],
   );
 
-  const myChoice = currentRound
-    ? mySide === "p1"
-      ? currentRound.p1_choice
-      : currentRound.p2_choice
-    : null;
+  const myChoice = currentRound?.my_choice ?? null;
 
   const rivalName = match?.vs_bot ? "La app 🤖" : (rival?.username ?? "Rival");
   const myName = profile?.username ?? "Vos";
@@ -179,6 +182,31 @@ function MatchScreen() {
     void navigate({ to: "/menu" });
   };
 
+  const addFriend = async () => {
+    if (!rivalId) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("send_friend_request", { _friend: rivalId });
+    setBusy(false);
+    if (error) {
+      toast.error("No pudimos enviar la solicitud");
+      return;
+    }
+    setFriendSent(true);
+    toast.success(`Le mandamos la solicitud a ${rivalName}`);
+  };
+
+  const friendButton = !match?.vs_bot && rivalId && (
+    <Button
+      size="lg"
+      variant="secondary"
+      className="h-13 w-full text-base"
+      disabled={busy || friendSent}
+      onClick={addFriend}
+    >
+      {friendSent ? "Solicitud enviada ✅" : `👥 Agregar a ${rivalName} como amigo`}
+    </Button>
+  );
+
   if (notFound) {
     return (
       <Centered>
@@ -207,9 +235,12 @@ function MatchScreen() {
         <p className="mt-1 text-sm text-muted-foreground">
           Le mandamos la invitación para jugar {modeLabel(match.mode)}.
         </p>
-        <Button variant="outline" className="mt-6" disabled={busy} onClick={leave}>
-          Cancelar invitación
-        </Button>
+        <div className="mt-6 w-full space-y-3">
+          {friendButton}
+          <Button variant="outline" className="w-full" disabled={busy} onClick={leave}>
+            Cancelar invitación
+          </Button>
+        </div>
       </Centered>
     );
   }
@@ -271,6 +302,7 @@ function MatchScreen() {
           <Button size="lg" className="h-14 w-full text-base" disabled={busy} onClick={playAgain}>
             Jugar de nuevo
           </Button>
+          {friendButton}
           <Button
             size="lg"
             variant="outline"
@@ -285,7 +317,7 @@ function MatchScreen() {
   }
 
   const rivalOffline = !match.vs_bot && rival && !isOnline(rival);
-  const waitingRival = Boolean(myChoice) && !currentRound?.result;
+  const waitingRival = Boolean(myChoice) && !match.vs_bot;
 
   return (
     <main className="mx-auto w-full max-w-md px-5 pt-6 pb-12">

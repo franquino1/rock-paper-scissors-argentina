@@ -23,7 +23,12 @@ async function ensureProfile(session: Session): Promise<Profile | null> {
     const candidate = attempt === 0 ? base || "jugador" : `${base || "jugador"}${attempt + 1}`;
     const inserted = await supabase
       .from("profiles")
-      .insert({ id: userId, username: candidate, status: "online" })
+      .insert({
+        id: userId,
+        username: candidate,
+        status: "online",
+        terms_accepted_at: new Date().toISOString(),
+      })
       .select(PROFILE_FIELDS)
       .maybeSingle();
     if (inserted.data) return inserted.data as Profile;

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,6 +40,7 @@ function AuthScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     if (!loading && session) void navigate({ to: "/menu", replace: true });
@@ -61,6 +63,12 @@ function AuthScreen() {
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      toast.error("Falta aceptar los términos", {
+        description: "Tildá la casilla para poder crear tu cuenta.",
+      });
+      return;
+    }
     const clean = username.trim().toLowerCase();
     if (!/^[a-z0-9_.]{3,18}$/.test(clean)) {
       toast.error("Nombre de usuario inválido", {
@@ -208,7 +216,30 @@ function AuthScreen() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" size="lg" className="h-13 w-full text-base" disabled={busy}>
+              <div className="flex items-start gap-3 rounded-xl bg-card/70 p-3">
+                <Checkbox
+                  id="terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(v) => setAcceptedTerms(v === true)}
+                  className="mt-0.5 h-5 w-5"
+                />
+                <Label htmlFor="terms" className="text-xs leading-relaxed font-normal">
+                  Acepto los{" "}
+                  <Link to="/terminos" className="font-bold underline">
+                    Términos y Condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link to="/privacidad" className="font-bold underline">
+                    Política de Privacidad
+                  </Link>
+                </Label>
+              </div>
+              <Button
+                type="submit"
+                size="lg"
+                className="h-13 w-full text-base"
+                disabled={busy || !acceptedTerms}
+              >
                 Crear mi cuenta
               </Button>
             </form>
