@@ -40,9 +40,11 @@ function MatchScreen() {
 
   const [match, setMatch] = useState<Match | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
+  const [currentRound, setCurrentRound] = useState<CurrentRound | null>(null);
   const [rival, setRival] = useState<PlayerRow | null>(null);
   const [busy, setBusy] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [friendSent, setFriendSent] = useState(false);
 
   const load = useCallback(async () => {
     const { data: m } = await supabase.from("matches").select("*").eq("id", matchId).maybeSingle();
@@ -51,12 +53,16 @@ function MatchScreen() {
       return;
     }
     setMatch(m as Match);
+    // Solo devuelve rondas ya resueltas: la jugada del rival nunca llega antes de tiempo.
     const { data: rs } = await supabase
       .from("rounds")
       .select("*")
       .eq("match_id", matchId)
       .order("round_number", { ascending: true });
     setRounds((rs ?? []) as Round[]);
+    // La ronda en curso llega enmascarada: solo mi jugada y si el rival ya jugó.
+    const { data: cr } = await supabase.rpc("current_round", { _match_id: matchId });
+    setCurrentRound((((cr ?? []) as CurrentRound[])[0] ?? null) as CurrentRound | null);
   }, [matchId]);
 
   useEffect(() => {
