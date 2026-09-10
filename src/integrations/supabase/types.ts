@@ -41,6 +41,33 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           created_at: string
@@ -97,6 +124,7 @@ export type Database = {
           losses: number
           puntos_totales: number
           status: string
+          terms_accepted_at: string | null
           username: string
           wins: number
         }
@@ -110,6 +138,7 @@ export type Database = {
           losses?: number
           puntos_totales?: number
           status?: string
+          terms_accepted_at?: string | null
           username: string
           wins?: number
         }
@@ -123,6 +152,7 @@ export type Database = {
           losses?: number
           puntos_totales?: number
           status?: string
+          terms_accepted_at?: string | null
           username?: string
           wins?: number
         }
@@ -205,6 +235,15 @@ export type Database = {
         Args: { _mode: number; _rival: string }
         Returns: string
       }
+      current_round: {
+        Args: { _match_id: string }
+        Returns: {
+          id: string
+          my_choice: Database["public"]["Enums"]["play_choice"]
+          rival_played: boolean
+          round_number: number
+        }[]
+      }
       finish_match_rewards: {
         Args: {
           _loser: string
@@ -231,6 +270,17 @@ export type Database = {
         }[]
       }
       leave_match: { Args: { _match_id: string }; Returns: undefined }
+      list_friends: {
+        Args: never
+        Returns: {
+          direction: string
+          id: string
+          last_seen: string
+          relation: string
+          status: string
+          username: string
+        }[]
+      }
       list_players: {
         Args: { _limit?: number }
         Returns: {
@@ -257,10 +307,16 @@ export type Database = {
           username: string
         }[]
       }
+      remove_friend: { Args: { _friend: string }; Returns: undefined }
+      respond_friend_request: {
+        Args: { _accept: boolean; _friend: string }
+        Returns: undefined
+      }
       respond_invite: {
         Args: { _accept: boolean; _match_id: string }
         Returns: undefined
       }
+      send_friend_request: { Args: { _friend: string }; Returns: undefined }
       username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
