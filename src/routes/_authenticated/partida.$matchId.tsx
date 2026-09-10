@@ -235,9 +235,12 @@ function MatchScreen() {
         <p className="mt-1 text-sm text-muted-foreground">
           Le mandamos la invitación para jugar {modeLabel(match.mode)}.
         </p>
-        <Button variant="outline" className="mt-6" disabled={busy} onClick={leave}>
-          Cancelar invitación
-        </Button>
+        <div className="mt-6 w-full space-y-3">
+          {friendButton}
+          <Button variant="outline" className="w-full" disabled={busy} onClick={leave}>
+            Cancelar invitación
+          </Button>
+        </div>
       </Centered>
     );
   }
