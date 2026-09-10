@@ -78,13 +78,17 @@ function MatchScreen() {
         { event: "*", schema: "public", table: "matches", filter: `id=eq.${matchId}` },
         () => void load(),
       )
+      // Realtime solo entrega rondas con resultado calculado (lo garantiza la seguridad
+      // de la base): la jugada del rival nunca viaja antes del reveal.
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "rounds", filter: `match_id=eq.${matchId}` },
         () => void load(),
       )
       .subscribe();
+    const id = window.setInterval(() => void load(), 5_000);
     return () => {
+      window.clearInterval(id);
       void supabase.removeChannel(channel);
     };
   }, [matchId, load]);
@@ -284,7 +288,7 @@ function MatchScreen() {
   }
 
   const rivalOffline = !match.vs_bot && rival && !isOnline(rival);
-  const waitingRival = Boolean(myChoice) && !currentRound?.result;
+  const waitingRival = Boolean(myChoice) && !match.vs_bot;
 
   return (
     <main className="mx-auto w-full max-w-md px-5 pt-6 pb-12">
