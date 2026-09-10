@@ -216,7 +216,30 @@ function AuthScreen() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" size="lg" className="h-13 w-full text-base" disabled={busy}>
+              <div className="flex items-start gap-3 rounded-xl bg-card/70 p-3">
+                <Checkbox
+                  id="terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(v) => setAcceptedTerms(v === true)}
+                  className="mt-0.5 h-5 w-5"
+                />
+                <Label htmlFor="terms" className="text-xs leading-relaxed font-normal">
+                  Acepto los{" "}
+                  <Link to="/terminos" className="font-bold underline">
+                    Términos y Condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link to="/privacidad" className="font-bold underline">
+                    Política de Privacidad
+                  </Link>
+                </Label>
+              </div>
+              <Button
+                type="submit"
+                size="lg"
+                className="h-13 w-full text-base"
+                disabled={busy || !acceptedTerms}
+              >
                 Crear mi cuenta
               </Button>
             </form>

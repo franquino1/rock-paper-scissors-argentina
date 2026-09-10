@@ -227,6 +227,14 @@ function MenuScreen() {
               🎖️ Mis logros
             </Button>
           </div>
+          <Button
+            variant="secondary"
+            size="lg"
+            className="h-13 w-full"
+            onClick={() => navigate({ to: "/amigos" })}
+          >
+            👥 Mis amigos
+          </Button>
           <div className="surface-card p-4 text-sm text-muted-foreground">
             <p className="font-semibold text-foreground">Cómo se gana</p>
             <p className="mt-1">🪨 rompe ✂️ · ✂️ corta 📄 · 📄 envuelve 🪨</p>
