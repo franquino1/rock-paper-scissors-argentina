@@ -299,6 +299,7 @@ function MatchScreen() {
           <Button size="lg" className="h-14 w-full text-base" disabled={busy} onClick={playAgain}>
             Jugar de nuevo
           </Button>
+          {friendButton}
           <Button
             size="lg"
             variant="outline"
