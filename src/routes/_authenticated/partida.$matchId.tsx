@@ -12,6 +12,7 @@ import {
   targetScore,
   whyWins,
   type Choice,
+  type CurrentRound,
   type Match,
   type PlayerRow,
   type Round,
@@ -116,20 +117,12 @@ function MatchScreen() {
     void beat(match.status === "in_progress" ? "in_match" : "online");
   }, [match?.status, match, beat]);
 
-  const currentRound = useMemo(
-    () => rounds.find((r) => r.result === null) ?? null,
-    [rounds],
-  );
   const lastResolved = useMemo(
     () => [...rounds].filter((r) => r.result !== null).pop() ?? null,
     [rounds],
   );
 
-  const myChoice = currentRound
-    ? mySide === "p1"
-      ? currentRound.p1_choice
-      : currentRound.p2_choice
-    : null;
+  const myChoice = currentRound?.my_choice ?? null;
 
   const rivalName = match?.vs_bot ? "La app 🤖" : (rival?.username ?? "Rival");
   const myName = profile?.username ?? "Vos";
